@@ -6,8 +6,8 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     // Start is called before the first frame update
-    int[] opponent_list = new int[10];
-    int[] player_list = new int[10];
+    public int[] opponent_list = new int[10];
+    public int[] player_list = new int[10];
     public GameObject[] card_numbers;
     public GameObject[] cards;
     public GameObject[] card_destination;
@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
     public GameObject Pot_text;
     public GameObject Player_state_text;
     public GameObject AI_state_text;
+    public GameObject ten_coin_prefab;
+    public GameObject one_coin_prefab;
     public bool player_turn = true;
     public GameObject[] buttons;
     public int player_coin = 20;
@@ -29,12 +31,15 @@ public class GameManager : MonoBehaviour
     GameObject obj;
     public int turn = -1;
     public int max_betting_value = 1;
+    public GameObject win_text;
     void Start()
     {
         Text player_state_text = Player_state_text.GetComponent<Text>();
         Text ai_state_text = AI_state_text.GetComponent<Text>();
+        Text Win_text = win_text.GetComponent<Text>();
         player_state_text.color = new Color(player_state_text.color.r, player_state_text.color.g, player_state_text.color.b, 0);
         ai_state_text.color = new Color(ai_state_text.color.r, ai_state_text.color.g, ai_state_text.color.b, 0);
+        Win_text.color = new Color(Win_text.color.r, Win_text.color.g, Win_text.color.b, 0);
         Game_progress_text.SetActive(false);
         for (int j = 0; j < 2; j++)
         {
@@ -260,6 +265,8 @@ public class GameManager : MonoBehaviour
     }
     public void Betting(int player, int betting)
     {
+        int ten_value = betting / 10;
+        int one_value = betting % 10;
         if(player == 0)
         {
             ai_coin -= betting;
@@ -278,7 +285,7 @@ public class GameManager : MonoBehaviour
         }
         if (is_called)
         {
-            Game_progress_text.GetComponent<Text>().text = "½ÂÀÚ¸¦ È®ÀÎÇÕ´Ï´Ù.";
+            Game_progress_text.GetComponent<Text>().text = "ìŠ¹ìë¥¼ í™•ì¸í•©ë‹ˆë‹¤.";
             Invoke("Check_winner", 1f);
         }
         else
@@ -301,13 +308,13 @@ public class GameManager : MonoBehaviour
         {
             if (player_die)
             {
-                Game_progress_text.GetComponent<Text>().text = "AI°¡ ½Â¸®ÇÏ¿´½À´Ï´Ù!";
+                Game_progress_text.GetComponent<Text>().text = "AIê°€ ìŠ¹ë¦¬í•˜ì˜€ìŠµë‹ˆë‹¤!";
                 ai_coin += temp_coin;
                 temp_coin = 0;
             }
             else
             {
-                Game_progress_text.GetComponent<Text>().text = "ÇÃ·¹ÀÌ¾î°¡ ½Â¸®ÇÏ¿´½À´Ï´Ù!";
+                Game_progress_text.GetComponent<Text>().text = "í”Œë ˆì´ì–´ê°€ ìŠ¹ë¦¬í•˜ì˜€ìŠµë‹ˆë‹¤!";
                 player_coin += temp_coin;
                 temp_coin = 0;
             }
@@ -316,13 +323,13 @@ public class GameManager : MonoBehaviour
         {
             if(player_list[turn] > opponent_list[turn])
             {
-                Game_progress_text.GetComponent<Text>().text = "ÇÃ·¹ÀÌ¾î°¡ ½Â¸®ÇÏ¿´½À´Ï´Ù!";
+                Game_progress_text.GetComponent<Text>().text = "í”Œë ˆì´ì–´ê°€ ìŠ¹ë¦¬í•˜ì˜€ìŠµë‹ˆë‹¤!";
                 player_coin += temp_coin;
                 temp_coin = 0;
             }
             else
             {
-                Game_progress_text.GetComponent<Text>().text = "AI°¡ ½Â¸®ÇÏ¿´½À´Ï´Ù!";
+                Game_progress_text.GetComponent<Text>().text = "AIê°€ ìŠ¹ë¦¬í•˜ì˜€ìŠµë‹ˆë‹¤!";
                 ai_coin += temp_coin;
                 temp_coin = 0;
             }
@@ -335,28 +342,48 @@ public class GameManager : MonoBehaviour
     }
     public void Ending(int who_win)
     {
-        if(who_win == 0)
+        GameObject obj = GameObject.Find("GameManager");
+        GameObject obj4 = GameObject.Find("Color");
+        int state = -1;
+        if (who_win == 0)
         {
             Debug.Log("Player win!");
+            state = 1;
         }
         else if(who_win == 1)
         {
             Debug.Log("Ai win!");
+            state = 0;
         }
         else
         {
             if(player_coin > ai_coin)
             {
                 Debug.Log("Player win!");
+                state = 1;
             }
             else if(player_coin == ai_coin)
             {
                 Debug.Log("Draw!");
+                state = 2;
             }
             else
             {
                 Debug.Log("Ai win!");
+                state = 0;
             }
+        }
+        if(state == 0)
+        {
+            obj4.GetComponent<Color_script>().Yellow(win_text, 0);
+        }
+        else if(state == 1)
+        {
+            obj4.GetComponent<Color_script>().Yellow(win_text, 1);
+        }
+        else
+        {
+            obj4.GetComponent<Color_script>().Yellow(win_text, 2);
         }
     }
 }
