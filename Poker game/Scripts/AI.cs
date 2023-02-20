@@ -9,6 +9,7 @@ public class AI : MonoBehaviour
     public GameObject Ai_state_text;
     public float win_probability;
     public int ai_betting = 1;
+    public int[] ban_card = new int[10];
     void Start()
     {
         
@@ -22,7 +23,7 @@ public class AI : MonoBehaviour
     public void AI_Betting()
     {
         Game_progress_text.SetActive(true);
-        Game_progress_text.GetComponent<Text>().text = "AI°¡ ÇÃ·¹ÀÌ ÁßÀÔ´Ï´Ù . . .";
+        Game_progress_text.GetComponent<Text>().text = "AIê°€ í”Œë ˆì´ ì¤‘ì…ë‹ˆë‹¤ . . .";
         Invoke("AI_Real_Betting", 1.5f);
     }
     public void AI_Real_Betting()
@@ -32,10 +33,56 @@ public class AI : MonoBehaviour
         GameObject obj2 = GameObject.Find("Raise_Event");
         GameObject obj3 = GameObject.Find("Player");
         GameObject obj4 = GameObject.Find("Color");
+        int present_turn = obj.GetComponent<GameManager>().turn;
+        for(int i = 0; i < present_turn; i++)
+        {
+            ban_card[i] = obj.GetComponent<GameManager>().opponent_list[i];
+        }
+        int present_card = obj.GetComponent<GameManager>().player_list[present_turn];
+        float win_probability = check_probability(present_turn, present_card);
+        float call_set = 1.0f;
+        float die_set = 2.0f;
+        if (win_probability > 0.8)
+        {
+            call_set = -1.0f;
+            die_set = -1.0f;
+        }
+        else if (win_probability > 0.7)
+        {
+            call_set = 0.9f;
+            die_set = 1.3f;
+        }
+        else if (win_probability > 0.6)
+        {
+            call_set = 1.0f;
+            die_set = 1.6f;
+        }
+        else if (win_probability > 0.5)
+        {
+            call_set = 0.8f;
+            die_set = 1.7f;
+        }
+        else if (win_probability > 0.4)
+        {
+            call_set = 0.6f;
+            die_set = 2.3f;
+        }
+        else if (win_probability > 0.3) {
+            call_set = 0.5f;
+            die_set = 2.4f;
+        }
+        else
+        {
+            call_set = 0.3f;
+            die_set = 2.6f;
+        }
+       
         while (true)
         {
-            int state = Random.Range(0, 3);
-            if (state == 0)
+            float state = Random.Range(0.0f, 3.0f);
+            Debug.Log(win_probability);
+            Debug.Log(state);
+            if (state <= call_set)
             {
                 int betting = obj.GetComponent<GameManager>().max_betting_value - ai_betting;
                 obj.GetComponent<GameManager>().is_called = true;
@@ -50,12 +97,12 @@ public class AI : MonoBehaviour
                 }
                 break;
             }
-            else if (state == 1)
+            else if (state <= die_set)
             {
                 obj.GetComponent<GameManager>().ai_die = true;
                 obj.GetComponent<GameManager>().give_up = true;
                 obj4.GetComponent<Color_script>().Blue(Ai_state_text, 0);
-                Game_progress_text.GetComponent<Text>().text = "½ÂÀÚ¸¦ È®ÀÎÇÕ´Ï´Ù.";
+                Game_progress_text.GetComponent<Text>().text = "ìŠ¹ìë¥¼ í™•ì¸í•©ë‹ˆë‹¤.";
                 Invoke("call", 1f);
                 break;
             }
@@ -68,7 +115,7 @@ public class AI : MonoBehaviour
                     continue;
                 }
                 obj4.GetComponent<Color_script>().Red(Ai_state_text, 0);
-                Game_progress_text.GetComponent<Text>().text = "AI°¡ " + betting_value + "¸¸Å­ Ãß°¡ º£ÆÃÇÏ¿´½À´Ï´Ù.";
+                Game_progress_text.GetComponent<Text>().text = "AIê°€ " + betting_value + "ë§Œí¼ ì¶”ê°€ ë² íŒ…í•˜ì˜€ìŠµë‹ˆë‹¤.";
                 obj3.GetComponent<Player>().ai_raised = true;
                 obj.GetComponent<GameManager>().Betting(0, betting_value);
                 break;
@@ -81,4 +128,23 @@ public class AI : MonoBehaviour
         obj.GetComponent<GameManager>().Check_winner();
     }
 
+    public float check_probability(int present_turn, int present_card)
+    {
+        int win_banned = 0;
+        for(int i = 1; i <= 10; i++)
+        {
+            if (i >= present_card)
+            {
+                for(int j = 0; j < present_turn; j++)
+                {
+                    if ( i == ban_card[j])
+                    {
+                        win_banned += 1;
+                        break;
+                    }
+                }
+            }
+        }
+        return (float)(10 - present_card - win_banned) / (10 - present_turn);
+    }
 }
