@@ -343,47 +343,34 @@ public class GameManager : MonoBehaviour
     public void Ending(int who_win)
     {
         GameObject obj = GameObject.Find("GameManager");
-        GameObject obj4 = GameObject.Find("Color");
-        int state = -1;
+        GameObject obj2 = GameObject.Find("Raise_Event");
         if (who_win == 0)
         {
             Debug.Log("Player win!");
-            state = 1;
+            SceneManager.LoadScene("Player_win");
         }
         else if(who_win == 1)
         {
             Debug.Log("Ai win!");
-            state = 0;
+            SceneManager.LoadScene("AI_win");
         }
         else
         {
             if(player_coin > ai_coin)
             {
                 Debug.Log("Player win!");
-                state = 1;
+                SceneManager.LoadScene("Player_win");
             }
             else if(player_coin == ai_coin)
             {
                 Debug.Log("Draw!");
-                state = 2;
+                SceneManager.LoadScene("Draw");
             }
             else
             {
                 Debug.Log("Ai win!");
-                state = 0;
+                SceneManager.LoadScene("AI_win");
             }
-        }
-        if(state == 0)
-        {
-            obj4.GetComponent<Color_script>().Yellow(win_text, 0);
-        }
-        else if(state == 1)
-        {
-            obj4.GetComponent<Color_script>().Yellow(win_text, 1);
-        }
-        else
-        {
-            obj4.GetComponent<Color_script>().Yellow(win_text, 2);
         }
     }
 }
